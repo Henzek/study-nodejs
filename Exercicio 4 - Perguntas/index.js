@@ -1,6 +1,19 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
+const connection = require("./database/database");
+const Pergunta = require("./database/Pergunta");
+
+//Database (Estrutura promisse)
+//Caso de erro: ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'senha1234';
+connection
+  .authenticate()
+  .then(() => {
+    console.log("Conexão com o banco de dados realizada com sucesso!");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 //Aqui estou definindo qual vai ser minha view engine.
 app.set("view engine", "ejs");
@@ -15,18 +28,29 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
-  //render é do ejs e ele vai renderizar o arquivo que está dentro da pasta views.
-  res.render("index");
+  //Select * from... raw = pesquisa crua sem informações adicionais desnecessárias
+  Pergunta.findAll({ raw: true }).then((perguntas) => {
+    //render é do ejs e ele vai renderizar o arquivo que está dentro da pasta views.
+    res.render("index", {
+      perguntas: perguntas,
+    });
+  });
 });
 
 app.get("/perguntar", (req, res) => {
   res.render("perguntar");
 });
 
-app.post("/salvarpergunta", (req, res)=>{
-    var titulo = req.body.titulo;
-    var descricao = req.body.descricao;
-    res.send("Título: " + titulo + " <br> Descrição: " + descricao);
+app.post("/salvarpergunta", (req, res) => {
+  var titulo = req.body.titulo;
+  var descricao = req.body.descricao;
+  //INSERT INTO...
+  Pergunta.create({
+    titulo: titulo,
+    descricao: descricao,
+  }).then(() => {
+    res.redirect("/");
+  });
 });
 
 app.listen(80, () => {

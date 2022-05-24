@@ -1,6 +1,24 @@
 <%- include('partials/header.ejs') %>
-  <body>
-    <%- include('partials/navbar.ejs') %>
-    <h1>Testando</h1>
-  </body>
+<body>
+  <%- include('partials/navbar.ejs') %>
+  <div class="container">
+    <div class="d-flex py-4">
+      <h1 class="mr-auto">Perguntas</h1>
+      <a href="/perguntar" class="my-auto"><button class="btn btn-primary">Perguntar</button></a>
+    </div>
+
+    <div class="row">
+      <% perguntas.forEach(pergunta=>{%>
+      <div class="col-sm-6 mt-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title"><%= pergunta.titulo %></h5>
+            <button class="btn btn-success">Responder</button>
+          </div>
+        </div>
+      </div>
+      <% })%>
+    </div>
+  </div>
+</body>
 <%- include('partials/footer.ejs') %>
