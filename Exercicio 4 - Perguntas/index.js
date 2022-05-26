@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const connection = require("./database/database");
 const Pergunta = require("./database/Pergunta");
+const Resposta = require("./database/Resposta");
 
 //Database (Estrutura promisse)
 //Caso de erro: ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'senha1234';
@@ -28,8 +29,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
-  //Select * from... raw = pesquisa crua sem informações adicionais desnecessárias
-  Pergunta.findAll({ raw: true }).then((perguntas) => {
+  //Select * from... RAW = pesquisa crua sem informações adicionais desnecessárias
+  //order é caso queira ordernar, por padrão usa ASC
+  Pergunta.findAll({ raw: true, order: [["id", "DESC"]] }).then((perguntas) => {
     //render é do ejs e ele vai renderizar o arquivo que está dentro da pasta views.
     res.render("index", {
       perguntas: perguntas,
@@ -41,6 +43,26 @@ app.get("/perguntar", (req, res) => {
   res.render("perguntar");
 });
 
+app.get("/pergunta/:id", (req, res) => {
+  var id = req.params.id;
+  Pergunta.findOne({
+    where: { id: id },
+  }).then((pergunta) => {
+    if (pergunta != undefined) {
+      // Pergunta encontrada
+      Resposta.findAll({
+        where: { perguntaId: pergunta.id,},
+        order: [['id', 'DESC']]
+      }).then((respostas) => {
+        res.render("pergunta", { pergunta: pergunta, respostas: respostas });
+      });
+    } else {
+      // Pergunta não encontrada
+      res.redirect("/");
+    }
+  });
+});
+
 app.post("/salvarpergunta", (req, res) => {
   var titulo = req.body.titulo;
   var descricao = req.body.descricao;
@@ -50,6 +72,18 @@ app.post("/salvarpergunta", (req, res) => {
     descricao: descricao,
   }).then(() => {
     res.redirect("/");
+  });
+});
+
+app.post("/salvarresposta", (req, res) => {
+  var corpo = req.body.corpo;
+  var perguntaId = req.body.pergunta;
+
+  Resposta.create({
+    corpo: corpo,
+    perguntaId: perguntaId,
+  }).then(() => {
+    res.redirect("/pergunta/" + perguntaId);
   });
 });
 
