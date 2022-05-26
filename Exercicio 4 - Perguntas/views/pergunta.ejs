@@ -7,12 +7,17 @@
     <form method="POST" action="/salvarresposta">
       <h3>Responda</h3>
       <textarea placeholder="Digite sua resposta" class="form-control" name="corpo"> </textarea>
-      <input type="hidden" value="<%= pergunta.id%>" name="pergunta" hidden>
+      <input type="hidden" value="<%= pergunta.id%>" name="pergunta" hidden />
       <button type="submit" class="btn btn-success float-right mt-3">Responder</button>
     </form>
     <h2 class="mt-4 mb-2">Respostas</h2>
     <% respostas.forEach(resposta =>{%>
-        <p><%= resposta.corpo %></p>
+    <div class="card mb-4">
+      <div class="header">
+        <h5 class="text-primary p-3">Resposta - #<%= resposta.id%></h5>
+      </div>
+      <div class="card-body"><p><%= resposta.corpo %></p></div>
+    </div>
     <% })%>
   </div>
 </body>
