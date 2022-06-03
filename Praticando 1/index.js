@@ -1,19 +1,15 @@
-var express = require('express');
-var app = express();
+const express = require('express');
+const app = express();
+const connection = require('./databases/database');
 
-app.get('/', (req, res)=>{
-    res.send("<h1>Estou mais rápido e não é decorado</h1>");
-});
-
-app.get('/:nome', (req, res)=>{
-    var param = req.params;
-    res.render('index', {
-        nome : param.nome
-    });
-});
+connection.authenticate().then(()=> console.log("Conexão realizada com sucesso")).catch((err)=> {console.log(err)});
 
 app.set('view engine', 'ejs');
+app.use(express.static('public'));
 
+app.get('/', (req, res)=>{
+    res.render('home');
+});
 app.listen(80, ()=>{
-    console.log("Servidor ligado");
+    console.log("Servidor iniciado com sucesso!");
 });
